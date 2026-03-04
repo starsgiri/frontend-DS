@@ -214,7 +214,7 @@ export default function LandingPage() {
       </motion.div>
       </section>
 
-      {/* Dome Gallery Section — 4 Corners with Disabilities */}
+      {/* Dome Gallery Section */}
       <section className="relative flex flex-col items-center overflow-hidden"
         style={{ background: "linear-gradient(180deg, #1e40af 0%, #0f172a 100%)" }}>
         <motion.div
@@ -232,39 +232,8 @@ export default function LandingPage() {
           </p>
         </motion.div>
 
-        {/* Corner Labels — overlaid on the gallery */}
+        {/* Dome Gallery */}
         <div className="relative w-full" style={{ height: "600px" }}>
-          {/* Corner labels */}
-          <div className="absolute inset-0 z-10 pointer-events-none">
-            <div className="relative w-full max-w-3xl mx-auto h-full px-6">
-              <CornerLabel
-                disability={DISABILITIES[0]}
-                position="top-left"
-                onTest={() => setTestingDisability(DISABILITIES[0])}
-                onRegister={() => router.push("/patients/new")}
-              />
-              <CornerLabel
-                disability={DISABILITIES[1]}
-                position="top-right"
-                onTest={() => setTestingDisability(DISABILITIES[1])}
-                onRegister={() => router.push("/patients/new")}
-              />
-              <CornerLabel
-                disability={DISABILITIES[2]}
-                position="bottom-left"
-                onTest={() => setTestingDisability(DISABILITIES[2])}
-                onRegister={() => router.push("/patients/new")}
-              />
-              <CornerLabel
-                disability={DISABILITIES[3]}
-                position="bottom-right"
-                onTest={() => setTestingDisability(DISABILITIES[3])}
-                onRegister={() => router.push("/patients/new")}
-              />
-            </div>
-          </div>
-
-          {/* Dome Gallery */}
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -293,8 +262,44 @@ export default function LandingPage() {
           transition={{ duration: 0.8, delay: 0.5 }}
           className="text-slate-400 text-xs py-4"
         >
-          Drag to rotate &bull; Click any image to enlarge &bull; Click a corner to learn more
+          Drag to rotate &bull; Click any image to enlarge
         </motion.p>
+      </section>
+
+      {/* Disability Cards Section — Below the Globe */}
+      <section
+        className="relative py-20 px-6"
+        style={{ background: "linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)" }}
+      >
+        {/* Section heading */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.7 }}
+          className="text-center mb-14"
+        >
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
+            Choose Your Accessibility Mode
+          </h2>
+          <p className="text-slate-400 max-w-2xl mx-auto">
+            Each mode is tailored to provide the best healthcare experience. Register a patient or test the features live.
+          </p>
+        </motion.div>
+
+        {/* 4 Disability Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+          {DISABILITIES.map((d, i) => (
+            <DisabilityCard
+              key={d.key}
+              disability={d}
+              index={i}
+              onTest={() => setTestingDisability(d)}
+              onRegister={() => router.push("/patients/new")}
+              onLearnMore={() => setSelectedDisability(d)}
+            />
+          ))}
+        </div>
       </section>
 
       {/* ── Voice Assistant Overlay ── */}
@@ -421,33 +426,20 @@ function FeaturePill({ icon, label }: { icon: string; label: string }) {
   );
 }
 
-/* ── Corner Label positioned at a corner of the cube grid ── */
-function CornerLabel({
+/* ── Disability Card — displayed below the globe ── */
+function DisabilityCard({
   disability,
-  position,
+  index,
   onTest,
   onRegister,
+  onLearnMore,
 }: {
   disability: DisabilityInfo;
-  position: "top-left" | "top-right" | "bottom-left" | "bottom-right";
+  index: number;
   onTest: () => void;
   onRegister: () => void;
+  onLearnMore: () => void;
 }) {
-  const posClasses: Record<string, string> = {
-    "top-left": "top-4 left-2",
-    "top-right": "top-4 right-2",
-    "bottom-left": "bottom-4 left-2",
-    "bottom-right": "bottom-4 right-2",
-  };
-
-  const delayMap: Record<string, number> = {
-    "top-left": 0.1,
-    "top-right": 0.2,
-    "bottom-left": 0.3,
-    "bottom-right": 0.4,
-  };
-
-  /* Short 1-line tag per disability */
   const taglines: Record<string, string> = {
     blind: "Voice-guided medical access",
     deaf: "Visual-first navigation",
@@ -457,46 +449,52 @@ function CornerLabel({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: position.startsWith("top") ? -30 : 30, scale: 0.6 }}
+      initial={{ opacity: 0, y: 40, scale: 0.9 }}
       whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: true }}
-      transition={{ type: "spring", stiffness: 180, damping: 16, delay: delayMap[position] }}
-      whileHover={{ scale: 1.06, y: -3 }}
-      className={`absolute ${posClasses[position]} z-10 pointer-events-auto group`}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ type: "spring", stiffness: 180, damping: 20, delay: index * 0.12 }}
+      whileHover={{ scale: 1.04, y: -8 }}
+      className="group cursor-pointer"
+      onClick={onLearnMore}
     >
-      {/* Glassmorphism card */}
       <div
-        className="relative flex flex-col items-center gap-1.5 px-4 py-3.5 rounded-2xl border transition-all duration-500"
+        className="relative flex flex-col items-center gap-4 px-6 py-8 rounded-3xl border transition-all duration-500 h-full"
         style={{
-          background: `linear-gradient(135deg, ${disability.color}14 0%, ${disability.color}06 100%)`,
-          backdropFilter: "blur(18px) saturate(1.4)",
-          WebkitBackdropFilter: "blur(18px) saturate(1.4)",
-          borderColor: `${disability.color}30`,
-          boxShadow: `0 0 0px transparent, inset 0 1px 0 ${disability.color}15`,
+          background: `linear-gradient(160deg, ${disability.color}18 0%, rgba(15,23,42,0.9) 60%)`,
+          backdropFilter: "blur(20px) saturate(1.5)",
+          WebkitBackdropFilter: "blur(20px) saturate(1.5)",
+          borderColor: `${disability.color}35`,
+          boxShadow: `0 4px 30px ${disability.color}10, inset 0 1px 0 ${disability.color}15`,
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = `${disability.color}70`;
-          e.currentTarget.style.boxShadow = `0 0 28px ${disability.glow}, 0 8px 24px ${disability.color}18, inset 0 1px 0 ${disability.color}25`;
-          e.currentTarget.style.background = `linear-gradient(135deg, ${disability.color}22 0%, ${disability.color}0c 100%)`;
+          e.currentTarget.style.borderColor = `${disability.color}80`;
+          e.currentTarget.style.boxShadow = `0 0 50px ${disability.glow}, 0 12px 40px ${disability.color}25, inset 0 1px 0 ${disability.color}30`;
+          e.currentTarget.style.background = `linear-gradient(160deg, ${disability.color}28 0%, rgba(15,23,42,0.85) 60%)`;
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.borderColor = `${disability.color}30`;
-          e.currentTarget.style.boxShadow = `0 0 0px transparent, inset 0 1px 0 ${disability.color}15`;
-          e.currentTarget.style.background = `linear-gradient(135deg, ${disability.color}14 0%, ${disability.color}06 100%)`;
+          e.currentTarget.style.borderColor = `${disability.color}35`;
+          e.currentTarget.style.boxShadow = `0 4px 30px ${disability.color}10, inset 0 1px 0 ${disability.color}15`;
+          e.currentTarget.style.background = `linear-gradient(160deg, ${disability.color}18 0%, rgba(15,23,42,0.9) 60%)`;
         }}
       >
-        {/* Pulse ring + icon */}
-        <div className="relative">
+        {/* Top glow accent line */}
+        <div
+          className="absolute top-0 left-1/2 -translate-x-1/2 h-[3px] rounded-full transition-all duration-500 group-hover:w-3/4 w-1/3"
+          style={{ background: `linear-gradient(90deg, transparent, ${disability.color}, transparent)` }}
+        />
+
+        {/* Animated icon with pulse */}
+        <div className="relative mt-2">
           <span
             className="absolute inset-0 rounded-full animate-ping opacity-20"
             style={{ background: disability.color }}
           />
           <span
-            className="relative z-10 flex items-center justify-center w-11 h-11 rounded-full text-xl border transition-all duration-300 group-hover:rotate-6 group-hover:scale-110"
+            className="relative z-10 flex items-center justify-center w-16 h-16 rounded-2xl text-3xl border transition-all duration-300 group-hover:rotate-6 group-hover:scale-110"
             style={{
               background: `${disability.color}20`,
-              borderColor: `${disability.color}40`,
-              boxShadow: `0 0 10px ${disability.glow}`,
+              borderColor: `${disability.color}45`,
+              boxShadow: `0 0 20px ${disability.glow}`,
             }}
           >
             {disability.icon}
@@ -504,48 +502,67 @@ function CornerLabel({
         </div>
 
         {/* Label */}
-        <span
-          className="text-[11px] font-bold uppercase tracking-widest text-center leading-tight"
+        <h3
+          className="text-sm font-bold uppercase tracking-widest text-center leading-tight"
           style={{ color: disability.color }}
         >
           {disability.label}
-        </span>
+        </h3>
 
-        {/* Accent line */}
+        {/* Accent divider */}
         <span
-          className="block w-6 h-[2px] rounded-full opacity-40 group-hover:w-9 group-hover:opacity-80 transition-all duration-500"
+          className="block w-10 h-[2px] rounded-full opacity-50 group-hover:w-16 group-hover:opacity-90 transition-all duration-500"
           style={{ background: disability.color }}
         />
 
         {/* Tagline */}
-        <p className="text-[9px] text-slate-400 text-center leading-tight max-w-[130px]">
+        <p className="text-xs text-slate-400 text-center leading-relaxed max-w-[180px]">
           {taglines[disability.key] ?? disability.description}
         </p>
 
-        {/* Buttons */}
-        <div className="flex gap-1.5 mt-1">
+        {/* Feature highlights (first 2) */}
+        <div className="space-y-2 w-full mt-1">
+          {disability.features.slice(0, 2).map((f, i) => (
+            <div
+              key={i}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl text-[11px] text-slate-300"
+              style={{ background: `${disability.color}0a` }}
+            >
+              <span className="text-sm shrink-0">{f.icon}</span>
+              <span className="leading-tight">{f.text}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-3 mt-auto pt-3 w-full">
           <button
             onClick={(e) => { e.stopPropagation(); onRegister(); }}
-            className="px-2.5 py-1 text-[9px] font-semibold rounded-lg border cursor-pointer transition-all hover:scale-105 hover:brightness-125"
+            className="flex-1 px-3 py-2.5 text-xs font-semibold rounded-xl border cursor-pointer transition-all hover:scale-105 hover:brightness-125"
             style={{
-              borderColor: `${disability.color}40`,
+              borderColor: `${disability.color}50`,
               color: disability.color,
-              background: `${disability.color}10`,
+              background: `${disability.color}12`,
             }}
           >
             Register
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); onTest(); }}
-            className="px-2.5 py-1 text-[9px] font-semibold rounded-lg text-white cursor-pointer transition-all hover:scale-105 hover:brightness-110"
+            className="flex-1 px-3 py-2.5 text-xs font-semibold rounded-xl text-white cursor-pointer transition-all hover:scale-105 hover:brightness-110"
             style={{
-              background: disability.color,
-              boxShadow: `0 2px 10px ${disability.glow}`,
+              background: `linear-gradient(135deg, ${disability.color}, ${disability.color}cc)`,
+              boxShadow: `0 4px 16px ${disability.glow}`,
             }}
           >
             Test ▶
           </button>
         </div>
+
+        {/* Learn more hint */}
+        <p className="text-[10px] text-slate-500 group-hover:text-slate-300 transition-colors">
+          Click to learn more &rarr;
+        </p>
       </div>
     </motion.div>
   );
